@@ -67,6 +67,7 @@ def _require_direct_report(manager: CurrentUser, row) -> None:
 
 def approve(manager: CurrentUser, request_id: int):
     row = _get_or_404(request_id)
+    _require_direct_report(manager, row)
     if row["status"] != "pending":
         raise HTTPException(status_code=409, detail="Only pending requests can be approved")
     year = date.fromisoformat(row["start_date"]).year
@@ -96,6 +97,11 @@ def cancel(user: CurrentUser, request_id: int):
     row = _get_or_404(request_id)
     if row["employee_id"] != user.id:
         raise HTTPException(status_code=403, detail="Only the requester can cancel")
+    start = date.fromisoformat(row["start_date"])
+    if row["status"] not in ("pending", "approved") or start <= date.today():
+        raise HTTPException(status_code=409, detail="This request can no longer be cancelled")
+    if row["status"] == "approved":
+        balance_service.restore(row["employee_id"], row["leave_type"], start.year, row["days"])
     leave_requests.update_status(request_id, "cancelled")
     logger.info(
         "Leave request %s cancelled by %s, reason=%r", request_id, user.email, row["reason"]
