@@ -59,3 +59,14 @@ def search(name: str | None, sort: str):
     sql += f" ORDER BY {sort}"
     with get_conn() as conn:
         return [dict(r) for r in conn.execute(sql).fetchall()]
+
+
+def list_for_team(team_id: int):
+    with get_conn() as conn:
+        rows = conn.execute(
+            "SELECT r.*, e.name AS employee_name FROM leave_requests r "
+            "JOIN employees e ON e.id = r.employee_id "
+            "WHERE e.team_id = ? ORDER BY r.start_date",
+            (team_id,),
+        ).fetchall()
+    return [dict(r) for r in rows]
