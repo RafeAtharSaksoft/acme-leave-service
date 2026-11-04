@@ -28,6 +28,10 @@ All seed users share the password `Welcome123!`.
 | bob.okafor@acme.example | employee | 2 | Dan |
 | carol.evans@acme.example | employee | 3 | Maria |
 
+## Reports
+
+Managers can download a CSV of a team's leave at `GET /reports/team/{team_id}/leave.csv`.
+
 ## Configuration
 
 | Variable | Purpose |
