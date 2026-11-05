@@ -2,7 +2,7 @@ import os
 
 DB_PATH = os.getenv("LEAVE_DB_PATH", "leave.db")
 
-JWT_SECRET = os.getenv("LEAVE_JWT_SECRET", "acme-hr-leave-secret-2023")
+JWT_SECRET = os.environ["LEAVE_JWT_SECRET"]  # required; the service refuses to start without it
 JWT_ALGORITHM = "HS256"
 TOKEN_EXPIRY_DAYS = 30
 

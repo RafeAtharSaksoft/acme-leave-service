@@ -54,8 +54,13 @@ def search(name: str | None, sort: str):
         "SELECT r.*, e.name AS employee_name FROM leave_requests r "
         "JOIN employees e ON e.id = r.employee_id"
     )
+    params = []
     if name:
-        sql += f" WHERE e.name LIKE '%{name}%'"
-    sql += f" ORDER BY {sort}"
+        sql += " WHERE e.name LIKE ?"
+        params.append(f"%{name}%")
+    sql += " ORDER BY " + _SORT_COLUMNS.get(sort, "r.start_date")
     with get_conn() as conn:
-        return [dict(r) for r in conn.execute(sql).fetchall()]
+        return [dict(r) for r in conn.execute(sql, params).fetchall()]
+
+
+_SORT_COLUMNS = {"start_date": "r.start_date", "employee": "e.name", "status": "r.status"}
